@@ -1,5 +1,5 @@
-from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth import get_user_model
 
 from blog.constants import MAX_TEXT_SIZE
 from blog.managers import FilterPostManager
@@ -62,7 +62,7 @@ class Post(PublishAndCreateModel):
                   'можно делать отложенные публикации.'
     )
     author = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.CASCADE,
         verbose_name='Автор публикации'
     )

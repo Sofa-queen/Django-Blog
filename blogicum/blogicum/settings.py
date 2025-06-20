@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'pages.apps.PagesConfig',
     'blog.apps.BlogConfig',
-    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -129,8 +128,6 @@ STATICFILES_DIRS = [
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-AUTH_USER_MODEL = 'users.MyUser'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 

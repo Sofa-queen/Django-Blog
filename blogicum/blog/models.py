@@ -1,5 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth import get_user_model
+from django import forms
 
 from blog.constants import MAX_TEXT_SIZE
 from blog.managers import FilterPostManager
@@ -62,7 +63,7 @@ class Post(PublishAndCreateModel):
                   'можно делать отложенные публикации.'
     )
     author = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.CASCADE,
         verbose_name='Автор публикации'
     )
@@ -79,11 +80,36 @@ class Post(PublishAndCreateModel):
         verbose_name='Категория',
         related_name='post_category'
     )
+    image = models.ImageField(
+        upload_to='posts_image',
+        blank=True,
+        verbose_name='Фото'
+    )
 
     objects = PostQuerySet.as_manager()
     filter_manager = FilterPostManager()
+
+    def comments_count(self):
+        return self.comments.count()
 
     class Meta:
         ordering = ('-pub_date',)
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField(verbose_name='Текст комментария')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('created_at',) 
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']

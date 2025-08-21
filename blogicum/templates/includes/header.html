@@ -24,15 +24,19 @@
                   href="{% url 'blog:create_post' %}">Написать пост</a></button>
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
                   href="{% url 'blog:profile' user.username %}">{{ user.username }}</a></button>
-              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="{% url 'logout' %}">Выйти</a></button>
+              <form action="{% url 'logout' %}" class="btn btn-outline-primary" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn p-0 text-decoration-none text-reset">
+                  Выйти
+                </button>
+              </form>
             </div>
           {% else %}
             <div class="btn-group" role="group" aria-label="Basic outlined example">
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
                   href="{% url 'login' %}">Войти</a></button>
               <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
-                  href="">Регистрация</a></button>
+                  href="{% url 'registration' %}">Регистрация</a></button>
             </div>
           {% endif %}
         </ul>

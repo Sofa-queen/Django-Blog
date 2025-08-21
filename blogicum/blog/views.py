@@ -6,7 +6,8 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from blog.constants import POSTS_AMOUNT
 from blog.models import Category, Post, Comment, CommentForm
-
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView
 
 def index(request):
     template = 'blog/index.html'
@@ -45,17 +46,27 @@ def profile(request, username):
         'page_obj': posts,
     }
     return render(request, 'blog/profile.html', context)
-  
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse_lazy('login'))
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/registration_form.html', {'form': form})
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'blog/user.html'
     fields = ['username', 'first_name', 'last_name']
-    success_url = reverse_lazy('profile')
 
     def get_object(self, queryset=None):
         return self.request.user
 
+    def get_success_url(self):
+            return reverse('blog:profile', kwargs={'username': self.request.user.username})
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -144,3 +155,7 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.author
+
+class CustomLoginView(LoginView):
+    def get_success_url(self):
+        return reverse('blog:profile', kwargs={'username': self.request.user.username})

@@ -12,7 +12,7 @@ from django.contrib.auth.views import LoginView
 def index(request):
     template = 'blog/index.html'
     posts = Post.filter_manager.all()[:POSTS_AMOUNT]
-    context = {'post_list': posts}
+    context = {'page_obj': posts}
     return render(request, template, context)
 
 

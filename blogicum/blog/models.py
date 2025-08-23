@@ -35,6 +35,9 @@ class Category(PublishAndCreateModel):
                   'символы латиницы, цифры, дефис и подчёркивание.'
     )
 
+    def __str__(self):
+            return self.title
+
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
@@ -45,6 +48,9 @@ class Location(PublishAndCreateModel):
         max_length=MAX_TEXT_SIZE,
         verbose_name='Название места'
     )
+
+    def __str__(self):
+            return self.name
 
     class Meta:
         verbose_name = 'местоположение'

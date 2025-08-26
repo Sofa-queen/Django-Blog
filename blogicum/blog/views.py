@@ -6,13 +6,19 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from blog.constants import POSTS_AMOUNT
 from blog.models import Category, Post, Comment, CommentForm
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.forms import UserCreationForm
+from django.core.paginator import Paginator
+
 
 def index(request):
     template = 'blog/index.html'
-    posts = Post.filter_manager.all()[:POSTS_AMOUNT]
-    context = {'page_obj': posts}
+    posts_list = Post.filter_manager.all()
+    paginator = Paginator(posts_list, POSTS_AMOUNT)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {'page_obj': page_obj}
     return render(request, template, context)
 
 
@@ -33,17 +39,25 @@ def category_posts(request, category_slug):
         is_published=True
     )
     post_list = category.post_category.published()
+    paginator = Paginator(post_list, POSTS_AMOUNT)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {'category': category,
-               'post_list': post_list}
+               'page_obj': page_obj}
     return render(request, template, context)
 
 
 def profile(request, username):
     user_obj = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=user_obj).order_by('-created_at')
+    posts_list = Post.objects.filter(author=user_obj).order_by('-created_at')
+
+    paginator = Paginator(posts_list, POSTS_AMOUNT)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'profile': user_obj,
-        'page_obj': posts,
+        'page_obj': page_obj,
     }
     return render(request, 'blog/profile.html', context)
 
@@ -57,6 +71,12 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'registration/registration_form.html', {'form': form})
 
+
+class CustomLoginView(LoginView):
+    def get_success_url(self):
+        return reverse('blog:profile', kwargs={'username': self.request.user.username})
+
+
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'blog/user.html'
@@ -64,9 +84,10 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
-
+    
     def get_success_url(self):
-            return reverse('blog:profile', kwargs={'username': self.request.user.username})
+        return reverse('blog:profile', kwargs={'username': self.request.user.username})
+
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -80,7 +101,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         username = self.request.user.username
-        return reverse('profile', kwargs={'username': username})
+        return reverse('blog:profile', kwargs={'username': username})
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -100,7 +121,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return redirect('post_detail', pk=self.get_object().pk)
 
     def get_success_url(self):
-        return reverse('post_detail', kwargs={'pk': self.object.pk})
+        return reverse('blog:post_detail', kwargs={'post_id': self.object.pk})
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
@@ -132,7 +153,7 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/detail.html'
-    
+
     def get_success_url(self):
         return reverse_lazy('profile', kwargs={'username': self.request.user.username})
     

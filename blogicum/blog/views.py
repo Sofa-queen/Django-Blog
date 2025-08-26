@@ -25,8 +25,11 @@ def index(request):
 def post_detail(request, post_id):
     post = get_object_or_404(Post.filter_manager.all(), pk=post_id)
     form = CommentForm(request.POST or None)
+    comments = Comment.objects.filter(post=post).select_related('author').order_by('-created_at')
     context = {'post': post,
-               'form': form}
+               'form': form,
+               'comments': comments
+               }
     template = 'blog/detail.html'
     return render(request, template, context)
 

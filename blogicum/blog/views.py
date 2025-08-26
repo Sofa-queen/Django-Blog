@@ -143,6 +143,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
     model = Comment
     form_class = CommentForm
+    template_name = 'blog/comment_form.html'
 
     def get_queryset(self):
         # Разрешить редактировать только свои комментарии

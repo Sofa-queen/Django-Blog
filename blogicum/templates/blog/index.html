@@ -3,6 +3,10 @@
   Лента записей
 {% endblock %}
 {% block content %}
+<form method="post" action="{% url 'blog:create_post' %}">
+  <input type="text" name="title">
+  <button type="submit">Отправить</button>
+</form>
   {% for post in page_obj %}
     <article class="mb-5">
       {% include "includes/post_card.html" %}

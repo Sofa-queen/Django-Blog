@@ -159,3 +159,8 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class CustomLoginView(LoginView):
     def get_success_url(self):
         return reverse('blog:profile', kwargs={'username': self.request.user.username})
+
+
+def trigger_error(request):
+    1 / 0  # делим на ноль, вызовет ZeroDivisionError
+    return HttpResponse("Никогда не дойдёт сюда :)")

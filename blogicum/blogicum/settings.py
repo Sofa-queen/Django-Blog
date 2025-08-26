@@ -137,3 +137,7 @@ LOGIN_URL = 'login'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+DEBUG = False
+
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'

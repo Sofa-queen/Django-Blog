@@ -167,15 +167,16 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
-    
+    template_name = 'blog/comment_confirm_delete.html'
+
     def get_object(self):
-        comment_id = self.kwargs.get('comment_id')
+        comment_id = self.kwargs.get('pk')
         return get_object_or_404(Comment, pk=comment_id)
-    
+
     def get_success_url(self):
         post_id = self.object.post.id
-        return reverse_lazy('posts', kwargs={'pk': post_id})
-    
+        return reverse_lazy('blog:post_detail', kwargs={'post_id': post_id})
+
     def test_func(self):
         comment = self.get_object()
         return self.request.user == comment.author
